@@ -1,0 +1,109 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${version}
+    container_name: elasticsearch
+    environment:
+      - node.name=ws-es-node
+      - discovery.type=single-node
+      - cluster.name=ws-es-data-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - xpack.security.enabled='false'
+      # - xpack.monitoring.enabled='false'
+      # - xpack.watcher.enabled='false'
+      # - xpack.ml.enabled='false'
+      # - http.cors.enabled='true'
+      # - http.cors.allow-origin="*"
+      # - http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE
+      # - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type, Content-Length
+#      - logger.level: debug
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic/:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - esnet
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${version}
+    container_name: kibana
+    environment:
+      SERVER_NAME: 127.0.0.1
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      # XPACK_GRAPH_ENABLED: false
+      # XPACK_ML_ENABLED: false
+      # XPACK_REPORTING_ENABLED: false
+      # XPACK_SECURITY_ENABLED: false
+      # XPACK_WATCHER_ENABLED: false
+    volumes:
+      - kibanadata/:/usr/share/kibana/data
+    ports:
+      - "5601:5601"
+    networks:
+      - esnet
+    depends_on:
+      - elasticsearch
+    restart: "unless-stopped"
+    
+  packetbeat:
+   image: docker.elastic.co/beats/packetbeat:${version}
+   container_name: packetbeat
+   volumes:
+      - ./beat/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml:ro
+      - pbdata:/usr/share/packetbeat/data/
+   networks:
+      - esnet
+   depends_on:
+      - elasticsearch
+   cap_add:
+      - NET_RAW
+      - NET_ADMIN
+
+
+  filebeat:
+   image: docker.elastic.co/beats/filebeat:${version}
+   container_name: filebeat
+   depends_on:
+      - elasticsearch
+      - nginx
+   networks:
+      - esnet
+   volumes:
+      - ./beat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs/nginx/:/var/log/nginx/
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./beat/filebeat/prospectors.d/:/usr/share/filebeat/prospectors.d/
+      - fbdata:/usr/share/filebeat/data/
+
+
+  nginx:
+    container_name: nginx
+    hostname: nginx
+    build: ./nginx
+    networks:
+       - esnet
+    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
+    ports: ['80:80']
+    command: nginx -g 'daemon off;'
+    volumes:
+      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
+      - ./logs/nginx/:/var/log/nginx/
+
+networks:
+  esnet:
+
+volumes:
+  elastic:
+    driver: local
+  fbdata:
+    driver: local
+  pbdata:
+    driver: local
+  kibanadata:
+    driver: local

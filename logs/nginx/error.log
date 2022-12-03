@@ -1,0 +1,17 @@
+2022/12/03 11:22:48 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:33:59 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:35:32 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:39:32 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:41:43 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:42:31 [error] 7#7: *1 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:42:43 [error] 7#7: *2 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:42:46 [error] 7#7: *3 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:42:48 [error] 7#7: *4 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:47:41 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/03 11:53:27 [error] 6#6: *1 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:28 [error] 6#6: *2 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:30 [error] 6#6: *3 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:30 [error] 6#6: *4 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:31 [error] 6#6: *5 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:32 [error] 6#6: *6 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
+2022/12/03 11:53:32 [error] 6#6: *7 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET / HTTP/1.1", host: "172.18.0.2"
