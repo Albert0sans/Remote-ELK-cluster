@@ -1,4 +1,4 @@
-version: '3'
+iversion: '3'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${version}
@@ -9,7 +9,7 @@ services:
       - cluster.name=ws-es-data-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
-      - xpack.security.enabled='false'
+      - xpack.security.enabled='true'
       # - xpack.monitoring.enabled='false'
       # - xpack.watcher.enabled='false'
       # - xpack.ml.enabled='false'
@@ -28,7 +28,9 @@ services:
       - 9200:9200
       - 9300:9300
     networks:
-      - esnet
+       esnet:
+         ipv4_address: 172.18.0.2
+
   kibana:
     image: docker.elastic.co/kibana/kibana:${version}
     container_name: kibana
@@ -44,8 +46,11 @@ services:
       - kibanadata/:/usr/share/kibana/data
     ports:
       - "5601:5601"
+
     networks:
-      - esnet
+       esnet:
+         ipv4_address: 172.18.0.3
+
     depends_on:
       - elasticsearch
     restart: "unless-stopped"
@@ -57,7 +62,8 @@ services:
       - ./beat/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml:ro
       - pbdata:/usr/share/packetbeat/data/
    networks:
-      - esnet
+       esnet:
+         ipv4_address: 172.18.0.4
    depends_on:
       - elasticsearch
    cap_add:
@@ -71,23 +77,45 @@ services:
    depends_on:
       - elasticsearch
       - nginx
+   user: root
+   command:
+      
+      - "--strict.perms=false"
    networks:
-      - esnet
+       esnet:
+         ipv4_address: 172.18.0.5
    volumes:
       - ./beat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./logs/nginx/:/var/log/nginx/
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./beat/filebeat/prospectors.d/:/usr/share/filebeat/prospectors.d/
+#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+#      - ./beat/filebeat/prospectors.d/:/usr/share/filebeat/prospectors.d/
       - fbdata:/usr/share/filebeat/data/
-
-
+  auditbeat:
+   image: docker.elastic.co/beats/auditbeat:${version}
+   container_name: auditbeat
+   cap_add:
+     - AUDIT_CONTROL
+     - AUDIT_READ
+   user: root
+   pid: host
+   privileged: true   
+   networks:
+       esnet:
+         ipv4_address: 172.18.0.6
+   volumes:
+      - ./beat/auditbeat.docker.yml:/usr/share/filebeat/auditbeat.yml:ro
+      - auditbeatdata:/usr/share/auditbeat/data
+      - /var/log:/var/log:ro
   nginx:
     container_name: nginx
     hostname: nginx
     build: ./nginx
+
     networks:
-       - esnet
+       esnet:
+         ipv4_address: 172.18.0.7
+
     #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
     ports: ['80:80']
     command: nginx -g 'daemon off;'
@@ -97,6 +125,15 @@ services:
 
 networks:
   esnet:
+    name: es_net
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
+          gateway: 172.18.0.1
+
+
 
 volumes:
   elastic:
@@ -107,3 +144,6 @@ volumes:
     driver: local
   kibanadata:
     driver: local
+ 
+  auditbeatdata:
+   driver: local
