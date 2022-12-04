@@ -1,9 +1,8 @@
-version: '3'
-services:
+version: "2.2"
 
+services:
   setup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${version}
-    container_name: certificate_generator
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
     user: "0"
@@ -63,13 +62,11 @@ services:
       timeout: 5s
       retries: 120
 
-
   es01:
     depends_on:
       setup:
         condition: service_healthy
-    image: docker.elastic.co/elasticsearch/elasticsearch:${version}
-    container_name: es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
@@ -78,7 +75,7 @@ services:
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
-      - cluster.initial_master_nodes=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es02,es03
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
@@ -94,7 +91,11 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
-
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
       test:
         [
@@ -105,27 +106,17 @@ services:
       timeout: 10s
       retries: 120
 
-    mem_limit: ${MEM_LIMIT}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    networks:
-       esnet:
-         ipv4_address: 172.18.0.2
-
   es02:
     depends_on:
       - es01
-    image: docker.elastic.co/elasticsearch/elasticsearch:${version}
-    container_name: es02
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata02:/usr/share/elasticsearch/data
     environment:
       - node.name=es02
       - cluster.name=${CLUSTER_NAME}
-      - cluster.initial_master_nodes=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es01,es03
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
@@ -140,34 +131,32 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'", 
-       ]
-      interval: 10s
-      timeout: 10s
-      retries: 120
-
     mem_limit: ${MEM_LIMIT}
     ulimits:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
 
   es03:
     depends_on:
       - es02
-    image: docker.elastic.co/elasticsearch/elasticsearch:${version}
-    container_name: es03
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata03:/usr/share/elasticsearch/data
     environment:
       - node.name=es03
       - cluster.name=${CLUSTER_NAME}
-      - cluster.initial_master_nodes=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
       - discovery.seed_hosts=es01,es02
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
@@ -182,8 +171,11 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
-    
-
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
       test:
         [
@@ -194,25 +186,18 @@ services:
       timeout: 10s
       retries: 120
 
-    mem_limit: ${MEM_LIMIT}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    networks:
-       esnet:
-         ipv4_address: 172.18.0.4
   kibana:
-
-#    depends_on:
-#       es03:
-#         condition: service_healthy
-
-    image: docker.elastic.co/kibana/kibana:${version}
+    depends_on:
+      es01:
+        condition: service_healthy
+      es02:
+        condition: service_healthy
+      es03:
+        condition: service_healthy
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     volumes:
       - certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
-    container_name: kibana
     ports:
       - ${KIBANA_PORT}:5601
     environment:
@@ -222,96 +207,17 @@ services:
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
     mem_limit: ${MEM_LIMIT}
-    networks:
-       esnet:
-         ipv4_address: 172.18.0.5
-
-    
-  packetbeat:
-   image: docker.elastic.co/beats/packetbeat:${version}
-   container_name: packetbeat
-   volumes:
-      - ./beat/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml:ro
-      - pbdata:/usr/share/packetbeat/data/
-   networks:
-       esnet:
-         ipv4_address: 172.18.0.6
-   depends_on:
-      - es03
-
-   cap_add:
-      - NET_RAW
-      - NET_ADMIN
-
-
-  filebeat:
-   image: docker.elastic.co/beats/filebeat:${version}
-   container_name: filebeat
-   depends_on:
-      es03:
-         condition: service_healthy
-   user: root
-   command:
-      
-      - "--strict.perms=false"
-   networks:
-       esnet:
-         ipv4_address: 172.18.0.7
-   volumes:
-      - ./beat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./logs/nginx/:/var/log/nginx/
-#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - ./beat/filebeat/prospectors.d/:/usr/share/filebeat/prospectors.d/
-      - fbdata:/usr/share/filebeat/data/
-  auditbeat:
-   image: docker.elastic.co/beats/auditbeat:${version}
-   container_name: auditbeat
-   cap_add:
-     - AUDIT_CONTROL
-     - AUDIT_READ
-   user: root
-   pid: host
-   depends_on:
-      - es03
-   privileged: true   
-   networks:
-       esnet:
-         ipv4_address: 172.18.0.8
-   volumes:
-      - ./beat/auditbeat.docker.yml:/usr/share/filebeat/auditbeat.yml:ro
-      - auditbeatdata:/usr/share/auditbeat/data
-      - /var/log:/var/log:ro
-  nginx:
-    container_name: nginx
-    hostname: nginx
-    build: ./nginx
-
-    networks:
-       esnet:
-         ipv4_address: 172.18.0.9
-
-    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
-    ports: ['80:80']
-    command: nginx -g 'daemon off;'
-    volumes:
-      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
-      - ./logs/nginx/:/var/log/nginx/
-
-networks:
-  esnet:
-    name: es_net
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.18.0.0/24
-          gateway: 172.18.0.1
-
-
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
 
 volumes:
-
   certs:
     driver: local
   esdata01:
@@ -322,10 +228,3 @@ volumes:
     driver: local
   kibanadata:
     driver: local
-  fbdata:
-    driver: local
-  pbdata:
-    driver: local
- 
-  auditbeatdata:
-   driver: local
