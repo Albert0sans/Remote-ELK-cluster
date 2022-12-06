@@ -19,8 +19,8 @@ auditbeat.modules:
 processors:
 - add_cloud_metadata: ~
 output.elasticsearch:
-  hosts: 'elasticsearch:9200'
+  hosts: 'es03:9200'
   username: 'elastic'
-  password: 'twvh779TnxrOehq43O3a'
+  password: 'h'
 setup.kibana:
     host: "kibana:5601"
