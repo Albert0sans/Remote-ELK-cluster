@@ -16,11 +16,34 @@ auditbeat.modules:
     - /sbin
     - /usr/sbin
     - /etc
-processors:
-- add_cloud_metadata: ~
+ssl.verification_mode: none
+certificate_authorities:
+   - 
+   -----BEGIN CERTIFICATE-----
+MIIDSTCCAjGgAwIBAgIUJRGEB5EnD5e562CURVI8uFqXRlQwDQYJKoZIhvcNAQEL
+BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+cmF0ZWQgQ0EwHhcNMjIxMjA3MTYzNTU1WhcNMjUxMjA2MTYzNTU1WjA0MTIwMAYD
+VQQDEylFbGFzdGljIENlcnRpZmljYXRlIFRvb2wgQXV0b2dlbmVyYXRlZCBDQTCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN+Vu25MJIFmKblnZapJmalP
+XhTX2df4d8JHk3wMXoASmea5HH1Z+Xp8y15S0KcaX9Wv1ASB3ONMCb4IrXUbskTD
+fmVJrT9/SlO5ZKcN7KSLLALxH/PQto2nSyMZ/dXQ4L3ILKPHhSG636PUE3KgkyiJ
+uZ1w6tI9YwogOSM3IAui5fmCygg2rihZrEbYpFYVtWGq/6va4SDYy1IP59D9PKHk
+QyNhVrTCL+rQx+gsfKQKUti0/70zXNzKnUVBOAS9mrB5gPhHye6fL901bGt3MSHJ
+R+Nhbx4LNwQ6PsI0DQ+1YeI/RFuzKsDhdAM+wchtmuq1wQrbg0fHZbHmsvZIeEEC
+AwEAAaNTMFEwHQYDVR0OBBYEFIzVDOUbIMi9we5iVB+zAoVEGrUnMB8GA1UdIwQY
+MBaAFIzVDOUbIMi9we5iVB+zAoVEGrUnMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZI
+hvcNAQELBQADggEBANj+gCnO/UxKzZ7BYfdqSWCtS4au8hH5ExD+Ir5g+PkPt9zh
+JFw2E0sLoj8P+UB/3MjldDlzc+fanLp2dmqFGp+RP9ykpt1MYs3k8cRC0Kml9brI
+oupeEyY0y2N5qDHuu6q2vBHs9lDUCACa3TLj1SaVDGkXrDZR2FhmyuAUkwES7qj8
+5EGuefCm75zIZd7uvU3VQK24QkYTkaxoJQsCUmgYVEDuCqbE0PCEWfTDxUUZ4H4+
+nGP36O9cnwmZAKgeN5OL+1btwimeZXuQuV+8FSwvCpfJrseE2fcWg/5Oajov1Ka0
+rbBHrjjsUXGTh0Ce1s+nba2JPEXwVAHSkapP1M4=
+-----END CERTIFICATE-----
 output.elasticsearch:
   hosts: 'es03:9200'
-  username: 'elastic'
-  password: 'h'
+  username: "elastic"
+  password: "1234567g"
+  
 setup.kibana:
+
     host: "kibana:5601"

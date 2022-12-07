@@ -43,8 +43,10 @@ processors:
 - add_cloud_metadata: ~
 
 output.elasticsearch:
-  hosts: 'es03:9200'
-  username: 'elastic'
-  password: 'h'
+  hosts: 'https://es03:9200'
+  username: "elastic"
+  password: "1234567g"
+
 setup.kibana:
-    host: "kibana:5601" 
+
+    host: "kibana:5601"
