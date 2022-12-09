@@ -25,9 +25,13 @@ processors:
 - add_cloud_metadata: ~
 
 output.elasticsearch:
-  hosts: 'https://es03:9200'
-  username: "elastic"
-  password: "1234567g"
+  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+  username: 'filebeat_writer'
+  password: '${BEAT_PASSWORD:}'
+  ssl:
+    certificate_authorities: "/usr/share/elasticsearch/config/certs/ca/ca.crt"
+    certificate: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.crt"
+    key: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.key"
 
 setup.kibana:
 
