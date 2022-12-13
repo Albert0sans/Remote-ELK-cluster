@@ -1,4 +1,3 @@
-packetbeat.interfaces.device: any
 packetbeat.interfaces.auto_promisc_mode: true
 packetbeat.flows:
   timeout: 30s

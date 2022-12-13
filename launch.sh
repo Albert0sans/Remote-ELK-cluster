@@ -11,6 +11,8 @@ echo "Creando Roles"
  {
        "cluster": [
     "monitor",
+    "manage",
+    "all",
     "manage_ilm",
     "manage_ml",
     "manage_index_templates",
@@ -24,6 +26,7 @@ echo "Creando Roles"
       ],
       "privileges": [
         "write",
+        "all",
         "create_index"
       ]
     }

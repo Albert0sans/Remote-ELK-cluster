@@ -289,6 +289,7 @@ services:
         condition: service_healthy
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     volumes:
+      - ./beat/kibana.docker.yml:/usr/share/kibana/config/kibana.yml
       - certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
     ports:
@@ -299,6 +300,7 @@ services:
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - xpack.encryptedSavedObjects.encryptionKey= "ddsa"
     mem_limit: ${MEM_LIMIT}
     healthcheck:
       test:
@@ -312,12 +314,9 @@ services:
   
   filebeat:
     depends_on:
-      es01:
+      kibana:
         condition: service_healthy
-      es02:
-        condition: service_healthy
-      es03:
-        condition: service_healthy
+
     image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
     container_name: filebeat
     volumes:
@@ -330,12 +329,9 @@ services:
 
   packetbeat:
     depends_on:
-      es01:
+      kibana:
         condition: service_healthy
-      es02:
-        condition: service_healthy
-      es03:
-        condition: service_healthy
+
 
     image: docker.elastic.co/beats/packetbeat:${STACK_VERSION}
     container_name: packetbeat
@@ -343,25 +339,22 @@ services:
       - ./beat/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml
       - certs:/usr/share/elasticsearch/config/certs
     environment:
-      - ELASTICSEARCH_HOSTS=["https://172.20.0.3:9200","https://172.20.0.4:9200"]
+      - ELASTICSEARCH_HOSTS=["https://es04:9200"]
       - BEAT_PASSWORD=${BEAT_PASSWORD}
 
 
     cap_add:
       - NET_RAW
       - NET_ADMIN
-    network_mode: "host"  
+   # network_mode: "host"  
 
   auditbeat:
    image: docker.elastic.co/beats/auditbeat:${STACK_VERSION}
    container_name: auditbeat
    depends_on:
-      es01:
+      kibana:
         condition: service_healthy
-      es02:
-        condition: service_healthy
-      es03:
-        condition: service_healthy
+
    cap_add:
      - AUDIT_CONTROL
      - AUDIT_READ
@@ -382,12 +375,9 @@ services:
     build: ./nginx
 
     depends_on:
-      es01:
+      kibana:
         condition: service_healthy
-      es02:
-        condition: service_healthy
-      es03:
-        condition: service_healthy
+
 
 
     #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat

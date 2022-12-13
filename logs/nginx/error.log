@@ -194,3 +194,41 @@
 2022/12/09 13:21:45 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
 2022/12/09 13:30:50 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
 2022/12/09 13:37:37 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/09 15:16:51 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/09 15:26:06 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/09 16:05:38 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/09 16:11:50 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/09 16:28:00 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 11:51:22 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 13:07:22 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 13:10:28 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 13:31:26 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 13:47:09 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 14:20:03 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 14:37:46 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 14:42:24 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 14:49:26 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 15:01:08 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 15:20:55 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 15:23:56 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 15:30:44 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 15:35:04 [error] 7#7: *1 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 192.168.56.103, server: localhost, request: "GET / HTTP/1.1", host: "192.168.56.103:8080"
+2022/12/10 19:00:01 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:02:20 [error] 7#7: *1 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 192.168.1.57, server: localhost, request: "GET / HTTP/1.1", host: "192.168.1.65:8080"
+2022/12/10 19:02:20 [error] 7#7: *1 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.1.57, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "192.168.1.65:8080", referrer: "http://192.168.1.65:8080/"
+2022/12/10 19:07:59 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:09:40 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:20:16 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:26:19 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:48:50 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 19:58:50 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:03:42 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:08:25 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:36:15 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:48:47 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:53:02 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 20:56:32 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/10 21:15:07 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/11 00:20:36 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/11 10:19:30 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
+2022/12/11 10:52:06 [warn] 1#1: conflicting server name "localhost" on 0.0.0.0:80, ignored
