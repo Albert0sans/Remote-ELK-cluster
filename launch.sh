@@ -1,5 +1,8 @@
 ELASTIC_PASSWORD="changeme"
 BEATS_PASSWORD="changeme"
+
+sudo sysctl -w vm.max_map_count=262144
+
 sudo docker kill $(sudo docker ps -q)
 sudo docker system prune -f
 sudo docker volume prune -f
