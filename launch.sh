@@ -1,7 +1,8 @@
 ELASTIC_PASSWORD="changeme"
 BEATS_PASSWORD="changeme"
-REMOTE_HOST_IP="127.0.0.1"
+REMOTE_HOST_IP="192.168.1.190"
 REMOTE_HOST_NAME="h"
+
 
 sudo sysctl -w vm.max_map_count=262144
 chmod 600 beat/auditbeat.docker.yml
@@ -78,7 +79,9 @@ sudo docker cp $(sudo docker ps | grep es01 | awk '{print $1;}'):/usr/share/elas
 
 
 ##SSH al host remoto y ejecución 
+echo $REMOTE_HOST_NAME@$REMOTE_HOST_IP
+LOCAL_IP= ip a | grep $(ip route |grep default| awk '{print $5}') | grep inet | awk {"$1"}
 
-cat remote_launch.sh | ssh $REMOTE_HOST_IP
+cat remote_launch.sh | ssh $REMOTE_HOST_NAME@$REMOTE_HOST_IP -y
 
 
