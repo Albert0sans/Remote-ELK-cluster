@@ -21,6 +21,7 @@ services:
           echo "Creating CA";
           bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
           unzip config/certs/ca.zip -d config/certs;
+          unzip config/certs/ca.zip -d config/certs/ca;
         fi;
         if [ ! -f config/certs/certs.zip ]; then
           echo "Creating certs";
@@ -48,26 +49,6 @@ services:
           "    dns:\n"\
           "      - es04\n"\
           "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
-          "  - name: filebeat\n"\
-          "    dns:\n"\
-          "      - es03\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
-          "  - name: packetbeat\n"\
-          "    dns:\n"\
-          "      - es03\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
-          "  - name: auditbeat\n"\
-          "    dns:\n"\
-          "      - es03\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
           > config/certs/instances.yml;
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
@@ -106,8 +87,8 @@ services:
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
-      - node.roles= [ "master","data" ]
-      - cluster.initial_master_nodes=es01,es02
+      - node.roles= [ "master","data","ingest" ]
+      - cluster.initial_master_nodes=es01
       - discovery.seed_hosts=es02,es03
       - minimun_master_nodes=2
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
@@ -310,80 +291,6 @@ services:
       timeout: 1s
       retries: 120
   
-  filebeat:
-    depends_on:
-      kibana:
-        condition: service_healthy
-
-    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
-    container_name: filebeat
-    volumes:
-      - ./beat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml
-      - ./logs/nginx/:/var/log/nginx/
-      - certs:/usr/share/elasticsearch/config/certs
-    environment:
-      - ELASTICSEARCH_HOSTS=["https://es04:9200"]
-      - BEAT_PASSWORD=${BEAT_PASSWORD}
-
-  packetbeat:
-    depends_on:
-      kibana:
-        condition: service_healthy
-
-
-    image: docker.elastic.co/beats/packetbeat:${STACK_VERSION}
-    container_name: packetbeat
-    volumes:
-      - ./beat/packetbeat.docker.yml:/usr/share/packetbeat/packetbeat.yml
-      - certs:/usr/share/elasticsearch/config/certs
-    environment:
-      - ELASTICSEARCH_HOSTS=["https://es04:9200"]
-      - BEAT_PASSWORD=${BEAT_PASSWORD}
-
-
-    cap_add:
-      - NET_RAW
-      - NET_ADMIN
-   # network_mode: "host"  
-
-  auditbeat:
-   image: docker.elastic.co/beats/auditbeat:${STACK_VERSION}
-   container_name: auditbeat
-   depends_on:
-      kibana:
-        condition: service_healthy
-
-   cap_add:
-     - AUDIT_CONTROL
-     - AUDIT_READ
-   user: root
-   pid: host
-   privileged: true 
-   volumes:
-      - ./beat/auditbeat.docker.yml:/usr/share/auditbeat/auditbeat.yml:ro
-      - /var/log:/var/log:ro
-      - certs:/usr/share/elasticsearch/config/certs
-   environment:
-      - ELASTICSEARCH_HOSTS=["https://es04:9200"]
-      - BEAT_PASSWORD=${BEAT_PASSWORD}
-
-  nginx:
-    container_name: nginx
-    hostname: nginx
-    build: ./nginx
-
-    depends_on:
-      kibana:
-        condition: service_healthy
-
-
-
-    #Expose port 80 to allow users to hit content and generate data for filebeat and packetbeat
-    ports: ['8080:80']
-    command: nginx -g 'daemon off;'
-    volumes:
-      #Logs are mounted to a relative path. These are also accessed by Filebeat and consumed by the Nginx module
-      - ./logs/nginx/:/var/log/nginx/
 
 
 

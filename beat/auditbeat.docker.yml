@@ -49,8 +49,8 @@ output.elasticsearch:
   password: '${BEAT_PASSWORD:}'
   ssl:
     certificate_authorities: "/usr/share/elasticsearch/config/certs/ca/ca.crt"
-    certificate: "/usr/share/elasticsearch/config/certs/auditbeat/auditbeat.crt"
-    key: "/usr/share/elasticsearch/config/certs/auditbeat/auditbeat.key"
+  #  certificate: "/usr/share/elasticsearch/config/certs/auditbeat/auditbeat.crt"
+  #  key: "/usr/share/elasticsearch/config/certs/auditbeat/auditbeat.key"
 setup.kibana:
 
   host: "kibana:5601"

@@ -30,8 +30,8 @@ output.elasticsearch:
   password: '${BEAT_PASSWORD:}'
   ssl:
     certificate_authorities: "/usr/share/elasticsearch/config/certs/ca/ca.crt"
-    certificate: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.crt"
-    key: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.key"
+  #  certificate: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.crt"
+  #  key: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.key"
 
 setup.kibana:
 

@@ -72,5 +72,8 @@ echo -e " Usuario packetbeat_writer creado \n"
 '
 echo -e " Usuario auditbeat_writer creado \n"
 
+sudo docker cp $(sudo docker ps | grep es01 | awk '{print $1;}'):/usr/share/elasticsearch/config/certs/ ./certs/
+
+
 
 
