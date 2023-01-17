@@ -1,5 +1,7 @@
 ELASTIC_PASSWORD="changeme"
 BEATS_PASSWORD="changeme"
+REMOTE_HOST_IP="127.0.0.1"
+REMOTE_HOST_NAME="h"
 
 sudo sysctl -w vm.max_map_count=262144
 chmod 600 beat/auditbeat.docker.yml
@@ -75,5 +77,8 @@ echo -e " Usuario auditbeat_writer creado \n"
 sudo docker cp $(sudo docker ps | grep es01 | awk '{print $1;}'):/usr/share/elasticsearch/config/certs/ ./certs/
 
 
+##SSH al host remoto y ejecución 
+
+cat remote_launch.sh | ssh $REMOTE_HOST_IP
 
 
