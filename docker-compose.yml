@@ -17,14 +17,15 @@ services:
           echo "Set the KIBANA_PASSWORD environment variable in the .env file";
           exit 1;
         fi;
-        if [ ! -f config/certs/ca.zip ]; then
-          echo "Creating CA";
-          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
-          unzip config/certs/ca.zip -d config/certs;
-          unzip config/certs/ca.zip -d config/certs/ca;
-        fi;
-        if [ ! -f config/certs/certs.zip ]; then
-          echo "Creating certs";
+        
+        echo "Creating CA";
+        mkdir config/certs/ca
+        openssl req -x509 -newkey rsa:2048 -keyout config/certs/ca/ca.key -out config/certs/ca/ca.crt -days 365 -nodes -subj "/CN=elasticsearch" -addext "subjectAltName = IP:192.168.1.141"
+        #  bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+        #  unzip config/certs/ca.zip -d config/certs;
+        #  unzip config/certs/ca.zip -d config/certs/ca;
+       
+        echo "Creating certs";
           echo -ne \
           "instances:\n"\
           "  - name: es01\n"\
@@ -49,10 +50,10 @@ services:
           "    dns:\n"\
           "      - es04\n"\
           "      - localhost\n"\
-          > config/certs/instances.yml;
+        > config/certs/instances.yml;
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
-        fi;
+        
         echo "Setting file permissions"
         chown -R root:root config/certs;
         find . -type d -exec chmod 750 \{\} \;;
@@ -72,6 +73,7 @@ services:
       interval: 1s
       timeout: 5s
       retries: 120
+
 
   es01:
     container_name: es01
@@ -291,7 +293,6 @@ services:
       timeout: 1s
       retries: 120
   
-
 
 
 volumes:

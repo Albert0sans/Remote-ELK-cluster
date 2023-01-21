@@ -1,38 +1,221 @@
-#filebeat.registry_file: /usr/share/filebeat/data/registry
-#filebeat.config.prospectors:
-#  path: ./prospectors.d/*.yml
-#  reload.enabled: false
+
+  es01:
+    container_name: es01
+    depends_on:
+      setup:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - node.roles= [ "master","data","ingest" ]
+      - cluster.initial_master_nodes=es01
+      - discovery.seed_hosts=es02,es03
+      - minimun_master_nodes=2
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es01/es01.key
+      - xpack.security.http.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es01/es01.key
+      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 120
+
+  es02:
+    container_name: es02
+    depends_on:
+      - es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata02:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es02
+      - cluster.name=${CLUSTER_NAME}
+      - node.roles= [ "master","data" ]
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - cluster.initial_master_nodes=es01,es02
+      - minimun_master_nodes=2
+      - discovery.seed_hosts=es01,es03
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es02/es02.key
+      - xpack.security.http.ssl.certificate=certs/es02/es02.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es02/es02.key
+      - xpack.security.transport.ssl.certificate=certs/es02/es02.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 120
+    ports:
+      - 9201:9200
+  es03:
+    container_name: es03
+    depends_on:
+      - es02
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata03:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es03
+      - cluster.name=${CLUSTER_NAME}
+      - node.roles= [ "master","data" ]
+      - cluster.initial_master_nodes=es01,es02
+      - discovery.seed_hosts=es01,es02
+      - minimun_master_nodes=2
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es03/es03.key
+      - xpack.security.http.ssl.certificate=certs/es03/es03.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es03/es03.key
+      - xpack.security.transport.ssl.certificate=certs/es03/es03.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 120
+    ports:
+      - 9202:9200
+
+  es04:
+    container_name: es04
+    depends_on:
+      - es03
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata04:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es04
+      - cluster.name=${CLUSTER_NAME}
+      - node.roles= [ "ingest" ]
+      - cluster.initial_master_nodes=es01,es02
+      - discovery.seed_hosts=es01,es02,es03
+      - minimun_master_nodes=2
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es04/es04.key
+      - xpack.security.http.ssl.certificate=certs/es04/es04.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.http.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es04/es04.key
+      - xpack.security.transport.ssl.certificate=certs/es04/es04.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 120
+    ports:
+      - 9203:9200
+
+  kibana:
+    container_name: kibana
+    depends_on:
+      es01:
+        condition: service_healthy
+      es02:
+        condition: service_healthy
+      es03:
+        condition: service_healthy
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    volumes:
+      - ./beat/kibana.docker.yml:/usr/share/kibana/config/kibana.yml
+      - certs:/usr/share/kibana/config/certs
+      - kibanadata:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=["https://es01:9200","https://es02:9200","https://es03:9200"]
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - xpack.encryptedSavedObjects.encryptionKey= "ddsa"
+    mem_limit: ${MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 120
+  
 
 
-#filebeat.autodiscover:
-#  providers:
-#    - type: docker
-#      hints.enabled: true
-
-filebeat.modules:
-- module: system
-  syslog:
-    enabled: true
-- module: nginx
-  access:
-    enabled: true
-    var.paths: ["/var/log/nginx/access.log*"]
-  error:
-    enabled: true
-    var.paths: ["/var/log/nginx/error.log*"]
-
-processors:
-- add_cloud_metadata: ~
-
-output.elasticsearch:
-  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
-  username: 'filebeat_writer'
-  password: '${BEAT_PASSWORD:}'
-  ssl:
-    certificate_authorities: "/usr/share/elasticsearch/config/certs/ca/ca.crt"
-  #  certificate: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.crt"
-  #  key: "/usr/share/elasticsearch/config/certs/filebeat/filebeat.key"
-
-setup.kibana:
-
-    host: "kibana:5601"
